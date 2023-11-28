@@ -1,0 +1,11 @@
+bot:
+  # get bot token from https://t.me/botfather
+  token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# chat id for redirect messages
+chat_id: -100XXXXXXXXXXXXX
+vault_address: https://vault.server1.io
+vpn_servers: [ 
+  {"name": "srv1", "host" : "server1.io", "port": 2233},
+  {"name": "srv2", "host" : "server2.io", "port": 3344},
+]
