@@ -1,7 +1,8 @@
 from aiogram import Bot
 from aiogram.types import BotCommand
 from aiogram.types import BotCommandScopeDefault
-#from sulguk import AiogramSulgukMiddleware
+
+# from sulguk import AiogramSulgukMiddleware
 
 from src.config import BotConfig
 

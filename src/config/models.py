@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional, Literal
-#from pydantic import Field
+
+# from pydantic import Field
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
@@ -11,13 +12,16 @@ class BotConfig(BaseSettings):
 
     token: SecretStr
 
+
 class VpnConfig(BaseSettings):
     """
     VPN config
     """
+
     name: str
     host: str
-    port: int # TODO: >0
+    port: int  # TODO: >0
+
 
 class Config(BaseSettings):
     """

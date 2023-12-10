@@ -19,7 +19,6 @@ class LoggerMiddleware(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
         await self.logger.ainfo(event=event, data=data)
-        print("sad")
         return await handler(event, data)
 
 

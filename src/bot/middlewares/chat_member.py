@@ -17,8 +17,9 @@ class ChatMemberMiddleware(BaseMiddleware):
         event: Message,
         data: Dict[str, Any],
     ) -> Any:
-        
-        chat_member = await event.bot.get_chat_member(self.members_chat_id, event.from_user.id)
+        chat_member = await event.bot.get_chat_member(
+            self.members_chat_id, event.from_user.id
+        )
         if chat_member.status not in ("left", "kicked"):
             return await handler(event, data)
 
