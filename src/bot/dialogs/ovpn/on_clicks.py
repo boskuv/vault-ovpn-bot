@@ -1,10 +1,13 @@
 from contextlib import suppress
 from typing import Any, Optional
+from jinja2 import Template
 import json
+import os
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery
 from aiogram.types import Message
+from aiogram.types import FSInputFile
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
 
@@ -57,8 +60,34 @@ async def on_confirmation(
     widget: Any,
     manager: DialogManager,
 ):
-    pass
-    # await manager.switch_to(OvpnDialogSG.render_ovpn_file)
+    if os.path.exists("./static/templates/tun-client.ovpn.j2"):
+        pass
+
+    with open("./static/templates/tun-client.ovpn.j2") as f:  # TODO: async
+        vars = {
+            "remote_host": manager.dialog_data["chosen_vpn_server"]["host"],
+            "remote_port": manager.dialog_data["chosen_vpn_server"]["port"],
+            "tunnel_option": manager.dialog_data["tunnel_option"],
+            "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
+        }
+        rendered_template = Template(f.read()).render(vars)
+
+        output_file_name = f"./temp/{manager.event.from_user.first_name}.ovpn"  # TODO: add nick + id + strip '_'
+        manager.dialog_data["output_file_name"] = output_file_name
+        with open(output_file_name, "w") as file:
+            file.write(rendered_template)
+
+    chat_id = callback.message.chat.id
+    bot = callback.bot
+    await bot.send_document(
+        chat_id=chat_id,
+        document=FSInputFile(
+            path=manager.dialog_data["output_file_name"],
+            filename=manager.dialog_data["output_file_name"],
+        ),
+        allow_sending_without_reply=False,
+        # reply_to_message_id=message_id,
+    )  # TODO: delete output_file_name
 
 
 async def on_finish(

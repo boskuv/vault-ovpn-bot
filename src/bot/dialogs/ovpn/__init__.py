@@ -6,7 +6,6 @@ from .windows import (
     set_tunnel_option_window,
     push_dns_server_option_window,
     summarize_window,
-    render_ovpn_file_window,
 )
 
 
@@ -15,7 +14,6 @@ ovpn_dialog = Dialog(
     set_tunnel_option_window(),
     push_dns_server_option_window(),
     summarize_window(),
-    render_ovpn_file_window(),
     launch_mode=LaunchMode.ROOT,
 )
 

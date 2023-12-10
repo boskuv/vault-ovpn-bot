@@ -7,7 +7,6 @@ class OvpnDialogSG(StatesGroup):
     set_tunnel_option = State()
     push_dns_server = State()
     summarize = State()
-    render_ovpn_file = State()
 
 
 __all__ = ["OvpnDialogSG"]

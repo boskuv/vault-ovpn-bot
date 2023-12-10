@@ -13,7 +13,11 @@ from aiogram_dialog.widgets.media import StaticMedia
 import operator
 
 from ...states import OvpnDialogSG
-from .getters import init_data_getter, true_false_option_getter, summarize_getter
+from .getters import (
+    init_data_getter,
+    true_false_option_getter,
+    summarize_getter,
+)
 from .on_clicks import (
     on_server_chosen,
     on_tunnel_option_set,
@@ -102,16 +106,6 @@ def summarize_window() -> Window:
         ),
         state=OvpnDialogSG.summarize,
         getter=summarize_getter,
-    )
-
-
-def render_ovpn_file_window() -> Window:
-    return Window(
-        StaticMedia(
-            path="/home/tishka17/python_logo.png",
-            type=ContentType.DOCUMENT,
-        ),
-        state=OvpnDialogSG.render_ovpn_file,
     )
 
 

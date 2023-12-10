@@ -32,4 +32,9 @@ async def summarize_getter(dialog_manager: DialogManager, **kwargs):
     }
 
 
-__all__ = ["init_data_getter", "true_false_option_getter", "summarize_getter"]
+__all__ = [
+    "init_data_getter",
+    "true_false_option_getter",
+    "summarize_getter",
+    "render_ovpn_file_getter",
+]
