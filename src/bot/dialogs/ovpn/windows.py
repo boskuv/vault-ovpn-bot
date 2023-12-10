@@ -19,6 +19,7 @@ from .on_clicks import (
     on_tunnel_option_set,
     on_push_dns_server_option_set,
     on_confirmation,
+    on_finish,
 )
 
 
@@ -35,7 +36,7 @@ def choose_vpn_server_window() -> Window:
             )
         ),
         Group(
-            Cancel(text=Const(f"⛔ Отмена"), id="cancel"),  # {Emoji.ERROR}
+            Cancel(text=Const(f"⛔ Отмена"), id="cancel", on_click=on_finish),
         ),
         state=OvpnDialogSG.choose_vpn_server,
         getter=init_data_getter,
@@ -55,7 +56,7 @@ def set_tunnel_option_window() -> Window:
         ),
         Group(
             # Back(text=Const(f"{Emoji.BACK} Назад"), id="back"),
-            Cancel(text=Const(f"⛔ Отмена"), id="cancel"),
+            Cancel(text=Const(f"⛔ Отмена"), id="cancel", on_click=on_finish),
         ),
         state=OvpnDialogSG.set_tunnel_option,
         getter=true_false_option_getter,
@@ -75,7 +76,7 @@ def push_dns_server_option_window() -> Window:
         ),
         Group(
             # Back(text=Const(f"{Emoji.BACK} Назад"), id="back"),
-            Cancel(text=Const(f"⛔ Отмена"), id="cancel"),
+            Cancel(text=Const(f"⛔ Отмена"), id="cancel", on_click=on_finish),
         ),
         state=OvpnDialogSG.push_dns_server,
         getter=true_false_option_getter,
@@ -97,7 +98,7 @@ def summarize_window() -> Window:
                 on_click=on_confirmation,
             ),
             # Back(text=Const(f"{Emoji.BACK} Назад"), id="back"),
-            Cancel(text=Const(f"⛔ Отмена"), id="cancel"),
+            Cancel(text=Const(f"⛔ Отмена"), id="cancel", on_click=on_finish),
         ),
         state=OvpnDialogSG.summarize,
         getter=summarize_getter,
@@ -110,7 +111,7 @@ def render_ovpn_file_window() -> Window:
             path="/home/tishka17/python_logo.png",
             type=ContentType.DOCUMENT,
         ),
-        # state=DialogSG.greeting,
+        state=OvpnDialogSG.render_ovpn_file,
     )
 
 

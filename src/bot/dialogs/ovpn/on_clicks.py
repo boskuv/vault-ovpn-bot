@@ -1,8 +1,10 @@
-import asyncio
-from typing import Any
+from contextlib import suppress
+from typing import Any, Optional
 import json
 
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery
+from aiogram.types import Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
 
@@ -54,10 +56,21 @@ async def on_confirmation(
     callback: CallbackQuery,
     widget: Any,
     manager: DialogManager,
-    selected_item: str,
 ):
     pass
     # await manager.switch_to(OvpnDialogSG.render_ovpn_file)
+
+
+async def on_finish(
+    c: CallbackQuery, button: Button, dialog_manager: DialogManager, **kwargs
+):
+    message_id = c.message.message_id
+    chat_id = c.message.chat.id
+
+    bot = dialog_manager.middleware_data["bot"]
+
+    with suppress(TelegramBadRequest):
+        await bot.delete_message(chat_id=chat_id, message_id=message_id)
 
 
 #     Реакция на нажатие кнопки выбора категории
