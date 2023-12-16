@@ -23,14 +23,19 @@ class VpnConfig(BaseSettings):
     port: int  # TODO: >0
 
 
+class VaultConfig(BaseSettings):
+    address: str
+    pki_mountpoint: str
+    role: str
+
 class Config(BaseSettings):
     """
     All in one config
     """
 
     bot: BotConfig
+    vault: VaultConfig
     chat_id: int
-    vault_address: str
     vpn_servers: List[VpnConfig] = dict()
 
 

@@ -3,6 +3,9 @@ from typing import Any, Optional
 from jinja2 import Template
 import json
 import os
+import hvac
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery
@@ -62,6 +65,32 @@ async def on_confirmation(
 ):
     if os.path.exists("./static/templates/tun-client.ovpn.j2"):
         pass
+    
+    
+    client = hvac.Client(manager.dialog_data["kwargs"]["config"].vault.address)
+    with open('%s/.vault-token' % os.path.expanduser("~"), 'r') as f:
+        client.token = f.readline()
+
+    assert client.is_authenticated()
+
+    # Get list of certificates to check if common name already exists
+    # for cert_serial in client.list('%s/certs' % args.ca)['data']['keys']:
+    #     record = client.read('%s/cert/%s' % (args.ca, cert_serial))
+    #     cert = x509.load_pem_x509_certificate(record['data']['certificate'].encode(), default_backend())
+    #     cn = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
+    #     if args.cn == cn:
+    #         #if not args.force:
+    #             #pass
+    #             #logging.error("There is already a certificate with this common name")
+    #         #else:
+    #             # pass
+    #             #logging.warning("There is already a certificate with this common name")
+
+    # Issue the certificate
+    # if manager.event.from_user.first_name is None: cn = ...
+    result = client.write(f'{manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint}/issue/{manager.dialog_data["kwargs"]["config"].vault.role}',
+                          common_name=f"{manager.event.from_user.first_name}-{manager.event.from_user.id}",
+                          ttl='8760h')
 
     with open("./static/templates/tun-client.ovpn.j2") as f:  # TODO: async
         vars = {
@@ -72,7 +101,7 @@ async def on_confirmation(
         }
         rendered_template = Template(f.read()).render(vars)
 
-        output_file_name = f"./temp/{manager.event.from_user.first_name}.ovpn"  # TODO: add nick + id + strip '_'
+        output_file_name = f"./temp/{manager.event.from_user.first_name}.ovpn"
         manager.dialog_data["output_file_name"] = output_file_name
         with open(output_file_name, "w") as file:
             file.write(rendered_template)

@@ -2,6 +2,11 @@ bot:
   # get bot token from https://t.me/botfather
   token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
+vault:
+  address: test
+  pki_mountpoint: pki_int_ca
+  role: xxx
+
 # chat id for redirect messages
 chat_id: -100XXXXXXXXXXXXX
 vault_address: https://vault.server1.io
