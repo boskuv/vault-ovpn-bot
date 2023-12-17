@@ -1,3 +1,4 @@
+from datetime import datetime
 from contextlib import suppress
 from typing import Any, Optional
 from jinja2 import Template
@@ -69,27 +70,30 @@ async def on_confirmation(
     
     client = hvac.Client(manager.dialog_data["kwargs"]["config"].vault.address)
     with open('%s/.vault-token' % os.path.expanduser("~"), 'r') as f:
-        client.token = f.readline()
+        client.token = f.readline().replace("\n", "")
 
+    # TODO: if sealed
     assert client.is_authenticated()
 
-    # Get list of certificates to check if common name already exists
-    # for cert_serial in client.list('%s/certs' % args.ca)['data']['keys']:
-    #     record = client.read('%s/cert/%s' % (args.ca, cert_serial))
-    #     cert = x509.load_pem_x509_certificate(record['data']['certificate'].encode(), default_backend())
-    #     cn = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
-    #     if args.cn == cn:
-    #         #if not args.force:
-    #             #pass
-    #             #logging.error("There is already a certificate with this common name")
-    #         #else:
-    #             # pass
-    #             #logging.warning("There is already a certificate with this common name")
+    # TODO: if manager.event.from_user.first_name is null
+    cn = f"{manager.dialog_data['chosen_vpn_server']['name']}-{manager.event.from_user.first_name}-{manager.event.from_user.id}"
+    
+    #Get list of certificates to check if common name already exists and .. TODO
+    for cert_serial in client.list('%s/certs' % manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint)['data']['keys']:
+        record = client.read('%s/cert/%s' % (manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint, cert_serial))
+        cert = x509.load_pem_x509_certificate(record['data']['certificate'].encode(), default_backend())
+        cn_ = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
+        current_datetime = datetime.now()
+        expiration_datetime = cert.not_valid_after
+        if cn == cn_ and current_datetime < expiration_datetime:
+            pass
+            # if it is possible to renew
+            break
 
-    # Issue the certificate
-    # if manager.event.from_user.first_name is None: cn = ...
+    # TODO: try
+
     result = client.write(f'{manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint}/issue/{manager.dialog_data["kwargs"]["config"].vault.role}',
-                          common_name=f"{manager.event.from_user.first_name}-{manager.event.from_user.id}",
+                          common_name=cn,
                           ttl='8760h')
 
     with open("./static/templates/tun-client.ovpn.j2") as f:  # TODO: async
@@ -98,10 +102,12 @@ async def on_confirmation(
             "remote_port": manager.dialog_data["chosen_vpn_server"]["port"],
             "tunnel_option": manager.dialog_data["tunnel_option"],
             "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
+            "key": result['data']['private_key'], 
+            "cert": result['data']['certificate']
         }
         rendered_template = Template(f.read()).render(vars)
 
-        output_file_name = f"./temp/{manager.event.from_user.first_name}.ovpn"
+        output_file_name = f"./temp/{cn}.ovpn"
         manager.dialog_data["output_file_name"] = output_file_name
         with open(output_file_name, "w") as file:
             file.write(rendered_template)
