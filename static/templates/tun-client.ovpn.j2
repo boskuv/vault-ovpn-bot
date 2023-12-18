@@ -1,0 +1,51 @@
+client
+
+;dev tap
+dev tun
+
+;proto tcp
+proto udp
+
+remote {{ remote_host }} {{ remote_port }}
+
+resolv-retry infinite
+
+nobind
+
+;user nobody
+;group nobody
+
+persist-key
+persist-tun
+
+<ca>
+!!! PUT YOUR CA CHAIN HERE !!!
+</ca>
+<cert>
+{{ cert }}
+</cert>
+<key>
+{{ key }}
+</key>
+
+{% if tunnel_option %}
+redirect-gateway def1
+{% endif %}
+
+{% if push_dns_server_option %}
+script-security 2
+dhcp-option DNS X.X.X.X
+dhcp-option DOMAIN example.com
+{% endif %}
+
+;tls-auth ta.key 1
+
+cipher AES-256-CBC
+
+comp-lzo
+
+# Set log file verbosity.
+verb 3
+
+# Silence repeating messages
+;mute 20
