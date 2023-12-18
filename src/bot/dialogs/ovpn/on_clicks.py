@@ -64,65 +64,88 @@ async def on_confirmation(
     widget: Any,
     manager: DialogManager,
 ):
-    if os.path.exists("./static/templates/tun-client.ovpn.j2"):
-        pass
-    
-    
-    client = hvac.Client(manager.dialog_data["kwargs"]["config"].vault.address)
-    with open('%s/.vault-token' % os.path.expanduser("~"), 'r') as f:
-        client.token = f.readline().replace("\n", "")
-
-    # TODO: if sealed
-    assert client.is_authenticated()
-
-    # TODO: if manager.event.from_user.first_name is null
-    cn = f"{manager.dialog_data['chosen_vpn_server']['name']}-{manager.event.from_user.first_name}-{manager.event.from_user.id}"
-    
-    #Get list of certificates to check if common name already exists and .. TODO
-    for cert_serial in client.list('%s/certs' % manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint)['data']['keys']:
-        record = client.read('%s/cert/%s' % (manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint, cert_serial))
-        cert = x509.load_pem_x509_certificate(record['data']['certificate'].encode(), default_backend())
-        cn_ = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
-        current_datetime = datetime.now()
-        expiration_datetime = cert.not_valid_after
-        if cn == cn_ and current_datetime < expiration_datetime:
-            pass
-            # if it is possible to renew
-            break
-
-    # TODO: try
-
-    result = client.write(f'{manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint}/issue/{manager.dialog_data["kwargs"]["config"].vault.role}',
-                          common_name=cn,
-                          ttl='8760h')
-
-    with open("./static/templates/tun-client.ovpn.j2") as f:  # TODO: async
-        vars = {
-            "remote_host": manager.dialog_data["chosen_vpn_server"]["host"],
-            "remote_port": manager.dialog_data["chosen_vpn_server"]["port"],
-            "tunnel_option": manager.dialog_data["tunnel_option"],
-            "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
-            "key": result['data']['private_key'], 
-            "cert": result['data']['certificate']
-        }
-        rendered_template = Template(f.read()).render(vars)
-
-        output_file_name = f"./temp/{cn}.ovpn"
-        manager.dialog_data["output_file_name"] = output_file_name
-        with open(output_file_name, "w") as file:
-            file.write(rendered_template)
+    is_able_to_generate_cert = True
 
     chat_id = callback.message.chat.id
     bot = callback.bot
-    await bot.send_document(
-        chat_id=chat_id,
-        document=FSInputFile(
-            path=manager.dialog_data["output_file_name"],
-            filename=manager.dialog_data["output_file_name"],
-        ),
-        allow_sending_without_reply=False,
-        # reply_to_message_id=message_id,
-    )  # TODO: delete output_file_name
+    message_id = callback.message.message_id
+    
+
+    if not os.path.exists("./static/templates/tun-client.ovpn.j2"):
+        with suppress(TelegramBadRequest):
+            is_able_to_generate_cert = False
+            await bot.send_message(chat_id, "🆘 Шаблон ovpn-конфигурации отсутствует во входном каталоге")
+    
+
+    client = hvac.Client(manager.dialog_data["kwargs"]["config"].vault.address)
+
+    if os.path.exists('%s/.vault-token' % os.path.expanduser("~")):
+        with open('%s/.vault-token' % os.path.expanduser("~"), 'r') as f:
+            client.token = f.readline().replace("\n", "")
+    else:
+        with suppress(TelegramBadRequest):
+            is_able_to_generate_cert = False
+            await bot.send_message(chat_id, "🆘 Токен отсутствует во входном каталоге")
+
+    try:
+        assert client.is_authenticated()
+    except:
+        is_able_to_generate_cert = False
+        await bot.send_message(chat_id, "🆘 Не удалость получить доступ к инстансу vault")
+
+
+    if client.seal_status['sealed']:
+        is_able_to_generate_cert = False
+        await bot.send_message(chat_id, "🆘 Инстанс vault запечатан")        
+
+    if is_able_to_generate_cert:
+        # TODO: if manager.event.from_user.first_name is null
+        cn = f"{manager.dialog_data['chosen_vpn_server']['name']}-{manager.event.from_user.first_name}-{manager.event.from_user.id}"
+        
+        #Get list of certificates to check if common name already exists and .. TODO
+        for cert_serial in client.list('%s/certs' % manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint)['data']['keys']:
+            record = client.read('%s/cert/%s' % (manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint, cert_serial))
+            cert = x509.load_pem_x509_certificate(record['data']['certificate'].encode(), default_backend())
+            cn_ = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
+            current_datetime = datetime.now()
+            expiration_datetime = cert.not_valid_after
+            if cn == cn_ and current_datetime < expiration_datetime:
+                pass
+                # if it is possible to renew
+                break
+
+        # TODO: try
+
+        result = client.write(f'{manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint}/issue/{manager.dialog_data["kwargs"]["config"].vault.role}',
+                            common_name=cn,
+                            ttl='8760h')
+
+        with open("./static/templates/tun-client.ovpn.j2") as f:  # TODO: async
+            vars = {
+                "remote_host": manager.dialog_data["chosen_vpn_server"]["host"],
+                "remote_port": manager.dialog_data["chosen_vpn_server"]["port"],
+                "tunnel_option": manager.dialog_data["tunnel_option"],
+                "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
+                "key": result['data']['private_key'], 
+                "cert": result['data']['certificate']
+            }
+            rendered_template = Template(f.read()).render(vars)
+
+            output_file_name = f"./temp/{cn}.ovpn"
+            manager.dialog_data["output_file_name"] = output_file_name
+            with open(output_file_name, "w") as file:
+                file.write(rendered_template)
+
+        await bot.send_document(
+            chat_id=chat_id,
+            caption="Сертификат, используемый в конфигурационном файле, будет действителен до ...",
+            document=FSInputFile(
+                path=manager.dialog_data["output_file_name"],
+                filename=manager.dialog_data["output_file_name"],
+            ),
+            allow_sending_without_reply=False,
+            reply_to_message_id=message_id,
+        )  # TODO: delete output_file_name
 
 
 async def on_finish(
