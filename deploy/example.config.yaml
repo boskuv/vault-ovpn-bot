@@ -7,8 +7,8 @@ vault:
   pki_mountpoint: pki_int_ca
   role: xxx
 
-# chat id for redirect messages
 chat_id: -100XXXXXXXXXXXXX # rename
+logs_chat_id: -100XXXXXXXXXXXXX
 vpn_servers: [ 
   {"name": "srv1", "host" : "server1.io", "port": 2233},
   {"name": "srv2", "host" : "server2.io", "port": 3344},

@@ -28,6 +28,7 @@ class VaultConfig(BaseSettings):
     pki_mountpoint: str
     role: str
 
+
 class Config(BaseSettings):
     """
     All in one config
@@ -36,6 +37,7 @@ class Config(BaseSettings):
     bot: BotConfig
     vault: VaultConfig
     chat_id: int
+    logs_chat_id: int
     vpn_servers: List[VpnConfig] = dict()
 
 
