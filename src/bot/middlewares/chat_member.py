@@ -8,8 +8,8 @@ from aiogram.types import Message
 
 
 class ChatMemberMiddleware(BaseMiddleware):
-    def __init__(self, members_chat_id: int) -> None:
-        self.members_chat_id = members_chat_id
+    def __init__(self, team_chat_id: int) -> None:
+        self.team_chat_id = team_chat_id
 
     async def __call__(
         self,
@@ -18,7 +18,7 @@ class ChatMemberMiddleware(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
         chat_member = await event.bot.get_chat_member(
-            self.members_chat_id, event.from_user.id
+            self.team_chat_id, event.from_user.id
         )
         if chat_member.status not in ("left", "kicked"):
             return await handler(event, data)

@@ -24,7 +24,7 @@ async def main() -> None:
     config: Config = load_config(config_path=CONFIG_FILE_PATH)
 
     dp: Dispatcher = setup_dispatcher(
-        logger=logger, config=config, chat_id=config.chat_id
+        logger=logger, config=config, team_chat_id=config.team_chat_id
     )
     bot: Bot = await setup_bot(config=config.bot)
 

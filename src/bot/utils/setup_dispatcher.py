@@ -9,7 +9,7 @@ from src.bot.handlers import register_handlers
 from src.bot.middlewares import LoggerMiddleware, ChatMemberMiddleware
 
 
-def setup_dispatcher(logger: BoundLogger, config: Config, chat_id: int) -> Dispatcher:
+def setup_dispatcher(logger: BoundLogger, config: Config, team_chat_id: int) -> Dispatcher:
     """
     :param logger:
     :param chat_id:
@@ -19,11 +19,11 @@ def setup_dispatcher(logger: BoundLogger, config: Config, chat_id: int) -> Dispa
         storage=MemoryStorage(),
         config=config,
         logger=logger,
-        chat_id=chat_id,
+        team_chat_id=team_chat_id,
         events_isolation=SimpleEventIsolation(),
     )
     dp.message.middleware(LoggerMiddleware(logger=logger))
-    dp.message.middleware(ChatMemberMiddleware(chat_id))
+    dp.message.middleware(ChatMemberMiddleware(team_chat_id))
 
     register_dialogs(dp)
     register_handlers(dp)

@@ -8,8 +8,9 @@ vault:
   role: xxx
   ttl: 30d
 
-chat_id: -100XXXXXXXXXXXXX # rename
+team_chat_id: -100XXXXXXXXXXXXX
 logs_chat_id: -100XXXXXXXXXXXXX
+
 vpn_servers: [ 
   {"name": "srv1", "host" : "server1.io", "port": 2233},
   {"name": "srv2", "host" : "server2.io", "port": 3344},
