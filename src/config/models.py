@@ -21,13 +21,13 @@ class VpnConfig(BaseSettings):
     name: str
     host: str
     port: int  # TODO: >0
-    ttl: str
 
 
 class VaultConfig(BaseSettings):
     address: str
     pki_mountpoint: str
     role: str
+    ttl: str
 
 
 class Config(BaseSettings):
@@ -37,7 +37,7 @@ class Config(BaseSettings):
 
     bot: BotConfig
     vault: VaultConfig
-    chat_id: int
+    team_chat_id: int
     logs_chat_id: int
     vpn_servers: List[VpnConfig] = dict()
 
