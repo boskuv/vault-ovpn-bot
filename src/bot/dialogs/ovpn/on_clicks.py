@@ -130,7 +130,7 @@ async def on_confirmation(
         result = client.write(
             f'{manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint}/issue/{manager.dialog_data["kwargs"]["config"].vault.role}',
             common_name=cn,
-            ttl="8760h",
+            ttl=f"{manager.dialog_data['kwargs']['config'].vault.ttl}",
         )
 
         with open("./static/templates/tun-client.ovpn.j2") as f:  # TODO: async
@@ -151,7 +151,7 @@ async def on_confirmation(
 
         await bot.send_document(
             chat_id=chat_id,
-            caption="Сертификат, используемый в конфигурационном файле, будет действителен до ...",
+            caption=f"Сертификат, используемый в конфигурационном файле, будет действителен в течение {manager.dialog_data['kwargs']['config'].vault.ttl}",
             document=FSInputFile(
                 path=manager.dialog_data["output_file_name"],
                 filename=manager.dialog_data["output_file_name"],
@@ -162,7 +162,7 @@ async def on_confirmation(
 
         await bot.send_message(
             manager.dialog_data["kwargs"]["config"].logs_chat_id,
-            f"Пользователь {manager.event.from_user.first_name} ({manager.event.from_user.id}) сгенерировал сертификат с CN {cn} для доступа к серверу {manager.dialog_data['chosen_vpn_server']['name']} сроком на ...",
+            f"Пользователь {manager.event.from_user.first_name} ({manager.event.from_user.id}) сгенерировал сертификат с CN {cn} для доступа к серверу {manager.dialog_data['chosen_vpn_server']['name']} сроком на {manager.dialog_data['kwargs']['config'].vault.ttl}",
         )
 
 

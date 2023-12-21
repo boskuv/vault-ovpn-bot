@@ -6,6 +6,7 @@ vault:
   address: test
   pki_mountpoint: pki_int_ca
   role: xxx
+  ttl: 30d
 
 chat_id: -100XXXXXXXXXXXXX # rename
 logs_chat_id: -100XXXXXXXXXXXXX

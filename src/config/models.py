@@ -21,6 +21,7 @@ class VpnConfig(BaseSettings):
     name: str
     host: str
     port: int  # TODO: >0
+    ttl: str
 
 
 class VaultConfig(BaseSettings):
