@@ -139,6 +139,7 @@ async def on_confirmation(
                 "remote_port": manager.dialog_data["chosen_vpn_server"]["port"],
                 "tunnel_option": manager.dialog_data["tunnel_option"],
                 "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
+                "routes": manager.dialog_data["chosen_vpn_server"]["routes"],
                 "key": result["data"]["private_key"],
                 "cert": result["data"]["certificate"],
             }

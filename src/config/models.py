@@ -20,7 +20,8 @@ class VpnConfig(BaseSettings):
 
     name: str
     host: str
-    port: int  # TODO: >0
+    port: int
+    routes: list = list()
 
 
 class VaultConfig(BaseSettings):
