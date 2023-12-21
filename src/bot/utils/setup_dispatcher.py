@@ -9,7 +9,9 @@ from src.bot.handlers import register_handlers
 from src.bot.middlewares import LoggerMiddleware, ChatMemberMiddleware
 
 
-def setup_dispatcher(logger: BoundLogger, config: Config, team_chat_id: int) -> Dispatcher:
+def setup_dispatcher(
+    logger: BoundLogger, config: Config, team_chat_id: int
+) -> Dispatcher:
     """
     :param logger:
     :param chat_id:

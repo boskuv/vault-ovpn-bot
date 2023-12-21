@@ -28,7 +28,7 @@ async def summarize_getter(dialog_manager: DialogManager, **kwargs):
         "chosen_vpn_server": dialog_data["chosen_vpn_server"]["name"],
         "push_dns_server_option": dialog_data["push_dns_server_option"],
         "tunnel_option": dialog_data["tunnel_option"],
-        "period": kwargs['config'].vault.ttl,
+        "period": kwargs["config"].vault.ttl,
     }
 
 
