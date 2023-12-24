@@ -13,6 +13,10 @@ class BotConfig(BaseSettings):
     token: SecretStr
 
 
+class Interface(BaseSettings):
+    interface_type: Literal["tun", "tap"] = "tun"
+    port: int
+
 class VpnConfig(BaseSettings):
     """
     VPN config
@@ -20,7 +24,7 @@ class VpnConfig(BaseSettings):
 
     name: str
     host: str
-    port: int
+    interfaces: list[Interface] # TODO: if more than one tun/tap
     routes: list = list()
 
 
