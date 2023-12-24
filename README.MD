@@ -1,4 +1,8 @@
 # Description
+
+0. Установить зависимости + заполнить config.yaml + добавить токен в `$HOME/.vault-token` with enough privileges to access CAs + добавить CA chain в шаблон
+1. добавить бота в группы (2)
+
 https://github.com/asyd/openvpn-tools/blob/master/README.md
 This is a collection of script to manage OpenVPN's users based on hashicorp's vault. You can create
 new users using a script, see current users and revoke them with the WebUI.
