@@ -56,6 +56,18 @@ async def on_push_dns_server_option_set(
     await callback.answer(selected_item)
 
     manager.dialog_data["push_dns_server_option"] = json.loads(selected_item.lower())
+    await manager.switch_to(OvpnDialogSG.choose_interface)
+
+
+async def on_interface_chosen(
+    callback: CallbackQuery,
+    widget: Any,
+    manager: DialogManager,
+    selected_item: str,
+):
+    await callback.answer(selected_item)
+
+    manager.dialog_data["chosen_interface"] = selected_item.lower()
     await manager.switch_to(OvpnDialogSG.summarize)
 
 
@@ -92,12 +104,12 @@ async def on_confirmation(
     except:
         is_able_to_generate_cert = False
         await bot.send_message(
-            chat_id, "🆘 Не удалость получить доступ к инстансу vault"
+            chat_id, "🆘 Не удалость получить доступ к инстансу vault" # TODO: logging
         )
 
     if client.seal_status["sealed"]:
         is_able_to_generate_cert = False
-        await bot.send_message(chat_id, "🆘 Инстанс vault запечатан")
+        await bot.send_message(chat_id, "🆘 Инстанс vault запечатан") # TODO: logging
 
     if is_able_to_generate_cert:
         # TODO: if manager.event.from_user.first_name is null
@@ -139,6 +151,7 @@ async def on_confirmation(
                 "remote_port": manager.dialog_data["chosen_vpn_server"]["port"],
                 "tunnel_option": manager.dialog_data["tunnel_option"],
                 "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
+                "chosen_interface": manager.dialog_data["chosen_interface"],
                 "routes": manager.dialog_data["chosen_vpn_server"]["routes"],
                 "key": result["data"]["private_key"],
                 "cert": result["data"]["certificate"],
@@ -224,5 +237,6 @@ __all__ = [
     "on_server_chosen",
     "on_tunnel_option_set",
     "on_push_dns_server_option_set",
+    "on_interface_chosen",
     "on_confirmation",
 ]

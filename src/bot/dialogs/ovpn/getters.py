@@ -20,6 +20,16 @@ async def true_false_option_getter(**kwargs):
         "count": len(true_false_options),
     }
 
+async def tuntap_inteface_getter(**kwargs):
+    tuntap_intefaces = [
+        ("TUN", "tun"),
+        ("TAP", "tap"),
+    ]
+    return {
+        "tuntap_intefaces": tuntap_intefaces,
+        "count": len(tuntap_intefaces),
+    }
+
 
 async def summarize_getter(dialog_manager: DialogManager, **kwargs):
     dialog_data = dialog_manager.dialog_data
@@ -28,6 +38,7 @@ async def summarize_getter(dialog_manager: DialogManager, **kwargs):
         "chosen_vpn_server": dialog_data["chosen_vpn_server"]["name"],
         "push_dns_server_option": dialog_data["push_dns_server_option"],
         "tunnel_option": dialog_data["tunnel_option"],
+        "chosen_interface": dialog_data["chosen_interface"],
         "period": kwargs["config"].vault.ttl,
     }
 
@@ -35,6 +46,7 @@ async def summarize_getter(dialog_manager: DialogManager, **kwargs):
 __all__ = [
     "init_data_getter",
     "true_false_option_getter",
+    "tuntap_inteface_getter",
     "summarize_getter",
     "render_ovpn_file_getter",
 ]

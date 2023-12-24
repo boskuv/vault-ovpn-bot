@@ -17,11 +17,13 @@ from .getters import (
     init_data_getter,
     true_false_option_getter,
     summarize_getter,
+    tuntap_inteface_getter,
 )
 from .on_clicks import (
     on_server_chosen,
     on_tunnel_option_set,
     on_push_dns_server_option_set,
+    on_interface_chosen,
     on_confirmation,
     on_finish,
 )
@@ -52,7 +54,7 @@ def set_tunnel_option_window() -> Window:
         Const("Туннелировать ли трафик:"),
         Radio(
             Format("🔘 {item[0]}"),
-            Format("⚪️ {item[0]}"),
+            Format("⚪️ {item[0]}"), # TODO: [0]?
             id="set_tunnel_option",
             item_id_getter=operator.itemgetter(1),
             items="true_false_options",
@@ -72,7 +74,7 @@ def push_dns_server_option_window() -> Window:
         Const("Подменять ли DNS-сервер:"),
         Radio(
             Format("🔘 {item[0]}"),
-            Format("⚪️ {item[0]}"),
+            Format("⚪️ {item[0]}"), # TODO: [0]?
             id="push_dns_server_option",
             item_id_getter=operator.itemgetter(1),
             items="true_false_options",
@@ -86,6 +88,25 @@ def push_dns_server_option_window() -> Window:
         getter=true_false_option_getter,
     )
 
+def choose_tuntap_interface_window() -> Window:
+    return Window(
+        Const("Выберите интерфейс для клиента OpenVPN:"),
+        Radio(
+            Format("🔘 {item[0]}"),
+            Format("⚪️ {item[0]}"),
+            id="choose_tuntap_interface",
+            item_id_getter=operator.itemgetter(1),
+            items="tuntap_intefaces",
+            on_click=on_interface_chosen,
+        ),
+        Group(
+            # Back(text=Const(f"{Emoji.BACK} Назад"), id="back"),
+            Cancel(text=Const(f"⛔ Отмена"), id="cancel", on_click=on_finish),
+        ),
+        state=OvpnDialogSG.choose_interface,
+        getter=tuntap_inteface_getter,
+    )
+
 
 def summarize_window() -> Window:
     return Window(
@@ -95,6 +116,7 @@ def summarize_window() -> Window:
         Format("📃 Точка подключения: {chosen_vpn_server}"),
         Format("📃 Туннелирование трафика: {push_dns_server_option}"),
         Format("📃 Подмена dns: {tunnel_option}"),
+        Format("📃 Интерфейс клиента: {chosen_interface}"),
         Group(
             Cancel(
                 text=Const(f"✅ Все верно - сгенерировать!"),
@@ -113,6 +135,7 @@ __all__ = [
     "choose_vpn_server_window",
     "set_tunnel_option_window",
     "push_dns_server_option_window",
+    "choose_tuntap_interface_window",
     "summarize_window",
     "render_ovpn_file_window",
 ]
