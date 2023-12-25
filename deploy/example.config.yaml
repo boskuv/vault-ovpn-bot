@@ -12,6 +12,6 @@ team_chat_id: -100XXXXXXXXXXXXX
 logs_chat_id: -100XXXXXXXXXXXXX
 
 vpn_servers: [ 
-  {"name": "srv1", "host" : "server1.io", "port": 2233, "routes": ["X.X.X.X"]},
-  {"name": "srv2", "host" : "server2.io", "port": 3344, "routes": ["X.X.X.X"]},
+  {"name": "srv1", "host" : "server1.io", "interfaces": [{"interface_type": "tap", "port": 2233}], "routes": ["X.X.X.X"]},
+  {"name": "srv2", "host" : "server2.io", "interfaces": [{"interface_type": "tun", "port": 3344}], "routes": ["X.X.X.X"]},
 ]
