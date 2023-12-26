@@ -26,10 +26,7 @@ async def on_server_chosen(
 ):
     await callback.answer(selected_item)
 
-    manager.dialog_data["chosen_vpn_server"] = {
-        key: value.strip("'")
-        for key, value in (item.split("=") for item in selected_item.split())
-    }
+    manager.dialog_data["chosen_vpn_server"] = selected_item
 
     await manager.switch_to(OvpnDialogSG.set_tunnel_option)
 
@@ -40,7 +37,7 @@ async def on_tunnel_option_set(
     manager: DialogManager,
     selected_item: str,
 ):
-    # await callback.answer(bool(selected_item))
+    #await callback.answer(bool(selected_item)) # TODO: fix
 
     manager.dialog_data["tunnel_option"] = json.loads(selected_item.lower())
 
@@ -113,7 +110,7 @@ async def on_confirmation(
 
     if is_able_to_generate_cert:
         # TODO: if manager.event.from_user.first_name is null
-        cn = f"{manager.dialog_data['chosen_vpn_server']['name']}-{manager.event.from_user.first_name}-{manager.event.from_user.id}"
+        cn = f"{manager.dialog_data['chosen_vpn_server']}-{manager.event.from_user.first_name}-{manager.event.from_user.id}"
 
         # Get list of certificates to check if common name already exists and .. TODO
         for cert_serial in client.list(
@@ -145,14 +142,27 @@ async def on_confirmation(
             ttl=f"{manager.dialog_data['kwargs']['config'].vault.ttl}",
         )
 
+        index_of_chosen_vpn_server = -1
+        index_of_chosen_interface = -1
+
+        for index, vpn_server in enumerate(manager.dialog_data["kwargs"]["config"].vpn_servers):
+            if vpn_server.name == manager.dialog_data["chosen_vpn_server"]:
+                index_of_chosen_vpn_server = index
+        
+        # TODO: if index_of_chosen_vpn_server == -1
+        for index, interface in enumerate(manager.dialog_data["kwargs"]["config"].vpn_servers[index_of_chosen_vpn_server].interfaces):
+            if interface.interface_type == manager.dialog_data["chosen_interface"]:
+                index_of_chosen_interface = index
+
+        # TODO: if index_of_chosen_interface == -1
         with open("./static/templates/tun-client.ovpn.j2") as f:  # TODO: async
-            vars = {
-                "remote_host": manager.dialog_data["chosen_vpn_server"]["host"],
-                "remote_port": manager.dialog_data["chosen_vpn_server"]["port"],
+            vars = { # TODO
+                "remote_host": manager.dialog_data["kwargs"]["config"].vpn_servers[index_of_chosen_vpn_server].host,
+                "remote_port": manager.dialog_data["kwargs"]["config"].vpn_servers[index_of_chosen_vpn_server].interfaces[index_of_chosen_interface].port,
                 "tunnel_option": manager.dialog_data["tunnel_option"],
                 "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
                 "chosen_interface": manager.dialog_data["chosen_interface"],
-                "routes": manager.dialog_data["chosen_vpn_server"]["routes"],
+                "routes":  manager.dialog_data["kwargs"]["config"].vpn_servers[index_of_chosen_vpn_server].routes,
                 "key": result["data"]["private_key"],
                 "cert": result["data"]["certificate"],
             }
@@ -176,7 +186,7 @@ async def on_confirmation(
 
         await bot.send_message(
             manager.dialog_data["kwargs"]["config"].logs_chat_id,
-            f"Пользователь {manager.event.from_user.first_name} ({manager.event.from_user.id}) сгенерировал сертификат с CN {cn} для доступа к серверу {manager.dialog_data['chosen_vpn_server']['name']} сроком на {manager.dialog_data['kwargs']['config'].vault.ttl}",
+            f"Пользователь {manager.event.from_user.first_name} (ID: {manager.event.from_user.id}) сгенерировал сертификат с CN `{cn}` для доступа к серверу `{manager.dialog_data['chosen_vpn_server']}` сроком на {manager.dialog_data['kwargs']['config'].vault.ttl}",
         )
 
 

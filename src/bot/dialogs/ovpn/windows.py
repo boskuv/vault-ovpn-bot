@@ -34,7 +34,7 @@ def choose_vpn_server_window() -> Window:
         Const("Выберите VPN-сервер, к которому хотите подключиться:"),
         Column(
             Select(
-                text=Format("{item.name}"),
+                text=Format("{item}"),
                 id="choose_vpn",
                 items="vpn_servers",
                 item_id_getter=lambda x: x,
