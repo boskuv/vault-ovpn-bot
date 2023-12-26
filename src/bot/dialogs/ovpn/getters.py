@@ -3,9 +3,11 @@ from aiogram_dialog import DialogManager
 
 async def init_data_getter(dialog_manager: DialogManager, **kwargs):
     for k, v in dialog_manager.start_data.items():
-       dialog_manager.dialog_data[k] = v
+        dialog_manager.dialog_data[k] = v
 
-    dialog_manager.start_data["vpn_servers"] = [server_cfg.name for server_cfg in dialog_manager.start_data["vpn_servers"]]
+    dialog_manager.start_data["vpn_servers"] = [
+        server_cfg.name for server_cfg in dialog_manager.start_data["vpn_servers"]
+    ]
     init_data = dialog_manager.start_data if dialog_manager.start_data else {}
 
     return init_data
@@ -21,14 +23,18 @@ async def true_false_option_getter(**kwargs):
         "count": len(true_false_options),
     }
 
-async def tuntap_inteface_getter(dialog_manager: DialogManager, **kwargs):
 
+async def tuntap_inteface_getter(dialog_manager: DialogManager, **kwargs):
     tuntap_intefaces = list()
 
-    for vpn_server_cfg in  kwargs["config"].vpn_servers:
+    for vpn_server_cfg in kwargs["config"].vpn_servers:
         if vpn_server_cfg.name == dialog_manager.dialog_data["chosen_vpn_server"]:
-            for interface in vpn_server_cfg.interfaces: # TODO: compulsory params and more than 2
-                tuntap_intefaces.append((interface.interface_type.lower(), interface.interface_type.lower()))
+            for (
+                interface
+            ) in vpn_server_cfg.interfaces:  # TODO: compulsory params and more than 2
+                tuntap_intefaces.append(
+                    (interface.interface_type.lower(), interface.interface_type.lower())
+                )
     return {
         "tuntap_intefaces": tuntap_intefaces,
         "count": len(tuntap_intefaces),

@@ -37,7 +37,7 @@ async def on_tunnel_option_set(
     manager: DialogManager,
     selected_item: str,
 ):
-    #await callback.answer(bool(selected_item)) # TODO: fix
+    # await callback.answer(bool(selected_item)) # TODO: fix
 
     manager.dialog_data["tunnel_option"] = json.loads(selected_item.lower())
 
@@ -101,12 +101,12 @@ async def on_confirmation(
     except:
         is_able_to_generate_cert = False
         await bot.send_message(
-            chat_id, "🆘 Не удалость получить доступ к инстансу vault" # TODO: logging
+            chat_id, "🆘 Не удалость получить доступ к инстансу vault"  # TODO: logging
         )
 
     if client.seal_status["sealed"]:
         is_able_to_generate_cert = False
-        await bot.send_message(chat_id, "🆘 Инстанс vault запечатан") # TODO: logging
+        await bot.send_message(chat_id, "🆘 Инстанс vault запечатан")  # TODO: logging
 
     if is_able_to_generate_cert:
         # TODO: if manager.event.from_user.first_name is null
@@ -145,24 +145,37 @@ async def on_confirmation(
         index_of_chosen_vpn_server = -1
         index_of_chosen_interface = -1
 
-        for index, vpn_server in enumerate(manager.dialog_data["kwargs"]["config"].vpn_servers):
+        for index, vpn_server in enumerate(
+            manager.dialog_data["kwargs"]["config"].vpn_servers
+        ):
             if vpn_server.name == manager.dialog_data["chosen_vpn_server"]:
                 index_of_chosen_vpn_server = index
-        
+
         # TODO: if index_of_chosen_vpn_server == -1
-        for index, interface in enumerate(manager.dialog_data["kwargs"]["config"].vpn_servers[index_of_chosen_vpn_server].interfaces):
+        for index, interface in enumerate(
+            manager.dialog_data["kwargs"]["config"]
+            .vpn_servers[index_of_chosen_vpn_server]
+            .interfaces
+        ):
             if interface.interface_type == manager.dialog_data["chosen_interface"]:
                 index_of_chosen_interface = index
 
         # TODO: if index_of_chosen_interface == -1
         with open("./static/templates/tun-client.ovpn.j2") as f:  # TODO: async
-            vars = { # TODO
-                "remote_host": manager.dialog_data["kwargs"]["config"].vpn_servers[index_of_chosen_vpn_server].host,
-                "remote_port": manager.dialog_data["kwargs"]["config"].vpn_servers[index_of_chosen_vpn_server].interfaces[index_of_chosen_interface].port,
+            vars = {  # TODO
+                "remote_host": manager.dialog_data["kwargs"]["config"]
+                .vpn_servers[index_of_chosen_vpn_server]
+                .host,
+                "remote_port": manager.dialog_data["kwargs"]["config"]
+                .vpn_servers[index_of_chosen_vpn_server]
+                .interfaces[index_of_chosen_interface]
+                .port,
                 "tunnel_option": manager.dialog_data["tunnel_option"],
                 "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
                 "chosen_interface": manager.dialog_data["chosen_interface"],
-                "routes":  manager.dialog_data["kwargs"]["config"].vpn_servers[index_of_chosen_vpn_server].routes,
+                "routes": manager.dialog_data["kwargs"]["config"]
+                .vpn_servers[index_of_chosen_vpn_server]
+                .routes,
                 "key": result["data"]["private_key"],
                 "cert": result["data"]["certificate"],
             }
@@ -200,47 +213,6 @@ async def on_finish(
 
     with suppress(TelegramBadRequest):
         await bot.delete_message(chat_id=chat_id, message_id=message_id)
-
-
-#     Реакция на нажатие кнопки выбора категории
-#     """
-#     msg = obj.message
-#     bot = dialog_manager.middleware_data["bot"]
-#     chat_id = msg.chat.id
-#     context = dialog_manager.current_context()
-#     search_type = selected_text.strip()
-
-#     # завершить диалог подготовки поиска
-#     await bot.delete_message(
-#         chat_id=chat_id, message_id=dialog_manager.current_stack().last_message_id
-#     )
-
-#     # получить стартовые данные из контекста
-#     search_phrase = context.start_data["search_phrase"]
-#     search_requirements_kwargs = context.start_data["search_requirements_kwargs"]
-#     initial_message = context.start_data["initial_message"]
-
-#     asyncio.create_task(
-#         run_search_tasks(
-#             category=IdentifierCategory(search_type),
-#             message=initial_message,
-#             search_phrase=search_phrase,
-#             **search_requirements_kwargs,
-#         )
-#     )
-#     await dialog_manager.done()
-
-
-# async def on_finish(
-#     c: CallbackQuery, button: Button, dialog_manager: DialogManager, **kwargs
-# ):
-#     message_id = c.message.message_id
-#     chat_id = c.message.chat.id
-#     await finish(
-#         message_id=message_id,
-#         chat_id=chat_id,
-#         dialog_manager=dialog_manager,
-#     )
 
 
 __all__ = [

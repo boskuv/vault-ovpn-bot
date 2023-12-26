@@ -17,6 +17,7 @@ class Interface(BaseSettings):
     interface_type: Literal["tun", "tap"] = "tun"
     port: int
 
+
 class VpnConfig(BaseSettings):
     """
     VPN config
@@ -24,7 +25,7 @@ class VpnConfig(BaseSettings):
 
     name: str
     host: str
-    interfaces: list[Interface] # TODO: if more than one tun/tap
+    interfaces: list[Interface]  # TODO: if more than one tun/tap
     routes: list = list()
 
 

@@ -54,7 +54,7 @@ def set_tunnel_option_window() -> Window:
         Const("Туннелировать ли трафик:"),
         Radio(
             Format("🔘 {item[0]}"),
-            Format("⚪️ {item[0]}"), # TODO: [0]?
+            Format("⚪️ {item[0]}"),  # TODO: [0]?
             id="set_tunnel_option",
             item_id_getter=operator.itemgetter(1),
             items="true_false_options",
@@ -74,7 +74,7 @@ def push_dns_server_option_window() -> Window:
         Const("Подменять ли DNS-сервер:"),
         Radio(
             Format("🔘 {item[0]}"),
-            Format("⚪️ {item[0]}"), # TODO: [0]?
+            Format("⚪️ {item[0]}"),  # TODO: [0]?
             id="push_dns_server_option",
             item_id_getter=operator.itemgetter(1),
             items="true_false_options",
@@ -87,6 +87,7 @@ def push_dns_server_option_window() -> Window:
         state=OvpnDialogSG.push_dns_server,
         getter=true_false_option_getter,
     )
+
 
 def choose_tuntap_interface_window() -> Window:
     return Window(

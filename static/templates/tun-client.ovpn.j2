@@ -1,7 +1,6 @@
 client
 
-;dev tap
-dev tun
+dev {{ chosen_interface }}
 
 ;proto tcp
 proto udp
@@ -31,6 +30,10 @@ persist-tun
 {% if tunnel_option %}
 redirect-gateway def1
 {% endif %}
+
+{% for route in routes -%}
+route add {{ route }}
+{% endfor %}
 
 {% if push_dns_server_option %}
 script-security 2
