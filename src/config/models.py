@@ -14,6 +14,9 @@ class BotConfig(BaseSettings):
 
 
 class Interface(BaseSettings):
+    """
+    Interface config
+    """
     interface_type: Literal["tun", "tap"] = "tun"
     port: int
 
