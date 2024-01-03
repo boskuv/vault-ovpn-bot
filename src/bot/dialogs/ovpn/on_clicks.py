@@ -151,7 +151,6 @@ async def on_confirmation(
             if vpn_server.name == manager.dialog_data["chosen_vpn_server"]:
                 index_of_chosen_vpn_server = index
 
-        # TODO: if index_of_chosen_vpn_server == -1
         for index, interface in enumerate(
             manager.dialog_data["kwargs"]["config"]
             .vpn_servers[index_of_chosen_vpn_server]
@@ -160,47 +159,51 @@ async def on_confirmation(
             if interface.interface_type == manager.dialog_data["chosen_interface"]:
                 index_of_chosen_interface = index
 
-        # TODO: if index_of_chosen_interface == -1
-        with open("./static/templates/tun-client.ovpn.j2") as f:  # TODO: async
-            vars = {  # TODO
-                "remote_host": manager.dialog_data["kwargs"]["config"]
-                .vpn_servers[index_of_chosen_vpn_server]
-                .host,
-                "remote_port": manager.dialog_data["kwargs"]["config"]
-                .vpn_servers[index_of_chosen_vpn_server]
-                .interfaces[index_of_chosen_interface]
-                .port,
-                "tunnel_option": manager.dialog_data["tunnel_option"],
-                "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
-                "chosen_interface": manager.dialog_data["chosen_interface"],
-                "routes": manager.dialog_data["kwargs"]["config"]
-                .vpn_servers[index_of_chosen_vpn_server]
-                .routes,
-                "key": result["data"]["private_key"],
-                "cert": result["data"]["certificate"],
-            }
-            rendered_template = Template(f.read()).render(vars)
+        if index_of_chosen_interface == -1 or index_of_chosen_vpn_server == -1:
+            with open("./static/templates/tun-client.ovpn.j2") as f:
+                vars = {
+                    "remote_host": manager.dialog_data["kwargs"]["config"]
+                    .vpn_servers[index_of_chosen_vpn_server]
+                    .host,
+                    "remote_port": manager.dialog_data["kwargs"]["config"]
+                    .vpn_servers[index_of_chosen_vpn_server]
+                    .interfaces[index_of_chosen_interface]
+                    .port,
+                    "tunnel_option": manager.dialog_data["tunnel_option"],
+                    "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
+                    "chosen_interface": manager.dialog_data["chosen_interface"],
+                    "routes": manager.dialog_data["kwargs"]["config"]
+                    .vpn_servers[index_of_chosen_vpn_server]
+                    .routes,
+                    "key": result["data"]["private_key"],
+                    "cert": result["data"]["certificate"],
+                }
+                rendered_template = Template(f.read()).render(vars)
 
-            output_file_name = f"./temp/{cn}.ovpn"
-            manager.dialog_data["output_file_name"] = output_file_name
-            with open(output_file_name, "w") as file:
-                file.write(rendered_template)
+                output_file_name = f"./temp/{cn}.ovpn"
+                manager.dialog_data["output_file_name"] = output_file_name
+                with open(output_file_name, "w") as file:
+                    file.write(rendered_template)
 
-        await bot.send_document(
-            chat_id=chat_id,
-            caption=f"Сертификат, используемый в конфигурационном файле, будет действителен в течение {manager.dialog_data['kwargs']['config'].vault.ttl}",
-            document=FSInputFile(
-                path=manager.dialog_data["output_file_name"],
-                filename=manager.dialog_data["output_file_name"],
-            ),
-            allow_sending_without_reply=False,
-            reply_to_message_id=message_id,
-        )  # TODO: delete output_file_name
+            await bot.send_document(
+                chat_id=chat_id,
+                caption=f"Сертификат, используемый в конфигурационном файле, будет действителен в течение {manager.dialog_data['kwargs']['config'].vault.ttl}",
+                document=FSInputFile(
+                    path=manager.dialog_data["output_file_name"],
+                    filename=manager.dialog_data["output_file_name"],
+                ),
+                allow_sending_without_reply=False,
+                reply_to_message_id=message_id,
+            )  # TODO: delete output_file_name
 
-        await bot.send_message(
-            manager.dialog_data["kwargs"]["config"].logs_chat_id,
-            f"Пользователь {manager.event.from_user.first_name} (ID: {manager.event.from_user.id}) сгенерировал сертификат с CN `{cn}` для доступа к серверу `{manager.dialog_data['chosen_vpn_server']}` сроком на {manager.dialog_data['kwargs']['config'].vault.ttl}",
-        )
+            await bot.send_message(
+                manager.dialog_data["kwargs"]["config"].logs_chat_id,
+                f"Пользователь {manager.event.from_user.first_name} (ID: {manager.event.from_user.id}) сгенерировал сертификат с CN `{cn}` для доступа к серверу `{manager.dialog_data['chosen_vpn_server']}` сроком на {manager.dialog_data['kwargs']['config'].vault.ttl}",
+            )
+        else:
+            await bot.send_message(
+                chat_id, f"🆘 Не удалость получить информацию о выбранном сервере: {vpn_server.name == manager.dialog_data['chosen_vpn_server']}. Обратитесь к администратору"
+            )
 
 
 async def on_finish(
