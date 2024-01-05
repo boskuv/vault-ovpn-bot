@@ -113,26 +113,26 @@ async def on_confirmation(
         cn = f"{manager.dialog_data['chosen_vpn_server']}-{manager.event.from_user.first_name}-{manager.event.from_user.id}"
 
         # Get list of certificates to check if common name already exists and .. TODO
-        for cert_serial in client.list(
-            "%s/certs" % manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint
-        )["data"]["keys"]:
-            record = client.read(
-                "%s/cert/%s"
-                % (
-                    manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint,
-                    cert_serial,
-                )
-            )
-            cert = x509.load_pem_x509_certificate(
-                record["data"]["certificate"].encode(), default_backend()
-            )
-            cn_ = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
-            current_datetime = datetime.now()
-            expiration_datetime = cert.not_valid_after
-            if cn == cn_ and current_datetime < expiration_datetime:
-                pass
-                # if it is possible to renew
-                break
+        # for cert_serial in client.list(
+        #     "%s/certs" % manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint
+        # )["data"]["keys"]:
+        #     record = client.read(
+        #         "%s/cert/%s"
+        #         % (
+        #             manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint,
+        #             cert_serial,
+        #         )
+        #     )
+        #     cert = x509.load_pem_x509_certificate(
+        #         record["data"]["certificate"].encode(), default_backend()
+        #     )
+        #     cn_ = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
+        #     current_datetime = datetime.now()
+        #     expiration_datetime = cert.not_valid_after
+        #     if cn == cn_ and current_datetime < expiration_datetime:
+        #         pass
+        #         # if it is possible to renew
+        #         break
 
         # TODO: try
 
@@ -150,6 +150,7 @@ async def on_confirmation(
         ):
             if vpn_server.name == manager.dialog_data["chosen_vpn_server"]:
                 index_of_chosen_vpn_server = index
+                break
 
         for index, interface in enumerate(
             manager.dialog_data["kwargs"]["config"]
@@ -158,8 +159,13 @@ async def on_confirmation(
         ):
             if interface.interface_type == manager.dialog_data["chosen_interface"]:
                 index_of_chosen_interface = index
+                break
 
         if index_of_chosen_interface == -1 or index_of_chosen_vpn_server == -1:
+            await bot.send_message(
+                chat_id, f"🆘 Не удалость получить информацию о выбранном сервере: {vpn_server.name == manager.dialog_data['chosen_vpn_server']}. Обратитесь к администратору"
+            )
+        else:
             with open("./static/templates/tun-client.ovpn.j2") as f:
                 vars = {
                     "remote_host": manager.dialog_data["kwargs"]["config"]
@@ -199,10 +205,6 @@ async def on_confirmation(
             await bot.send_message(
                 manager.dialog_data["kwargs"]["config"].logs_chat_id,
                 f"Пользователь {manager.event.from_user.first_name} (ID: {manager.event.from_user.id}) сгенерировал сертификат с CN `{cn}` для доступа к серверу `{manager.dialog_data['chosen_vpn_server']}` сроком на {manager.dialog_data['kwargs']['config'].vault.ttl}",
-            )
-        else:
-            await bot.send_message(
-                chat_id, f"🆘 Не удалость получить информацию о выбранном сервере: {vpn_server.name == manager.dialog_data['chosen_vpn_server']}. Обратитесь к администратору"
             )
 
 
