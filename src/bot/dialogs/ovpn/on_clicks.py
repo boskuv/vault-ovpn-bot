@@ -79,34 +79,34 @@ async def on_confirmation(
     bot = callback.bot
     message_id = callback.message.message_id
 
-    if not os.path.exists("./static/templates/tun-client.ovpn.j2"):
+    if not os.path.exists(manager.dialog_data["kwargs"]["config"].path_to_ovpn_template):
         with suppress(TelegramBadRequest):
             is_able_to_generate_cert = False
             await bot.send_message(
-                chat_id, "🆘 Шаблон ovpn-конфигурации отсутствует во входном каталоге"
+                chat_id, "Шаблон ovpn-конфигурации отсутствует во входном каталоге"
             )
 
     client = hvac.Client(manager.dialog_data["kwargs"]["config"].vault.address)
 
-    if os.path.exists("%s/.vault-token" % os.path.expanduser("~")):
-        with open("%s/.vault-token" % os.path.expanduser("~"), "r") as f:
+    if os.path.exists("%s/.vault-token"% os.path.expanduser("~")):
+        with open("%s/.vault-token"% os.path.expanduser("~"), "r") as f:
             client.token = f.readline().replace("\n", "")
     else:
         with suppress(TelegramBadRequest):
             is_able_to_generate_cert = False
-            await bot.send_message(chat_id, "🆘 Токен отсутствует во входном каталоге")
+            await bot.send_message(chat_id, "Токен отсутствует во входном каталоге")
 
     try:
         assert client.is_authenticated()
     except:
         is_able_to_generate_cert = False
         await bot.send_message(
-            chat_id, "🆘 Не удалость получить доступ к инстансу vault"  # TODO: logging
+            chat_id, "Не удалось получить доступ к инстансу vault. Обратитесь к администраторам" # TODO: logging
         )
 
     if client.seal_status["sealed"]:
         is_able_to_generate_cert = False
-        await bot.send_message(chat_id, "🆘 Инстанс vault запечатан")  # TODO: logging
+        await bot.send_message(chat_id, "Инстанс vault запечатан")  # TODO: logging
 
     if is_able_to_generate_cert:
         # TODO: if manager.event.from_user.first_name is null
@@ -114,7 +114,7 @@ async def on_confirmation(
 
         # Get list of certificates to check if common name already exists and .. TODO
         # for cert_serial in client.list(
-        #     "%s/certs" % manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint
+        #     "%s/certs"% manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint
         # )["data"]["keys"]:
         #     record = client.read(
         #         "%s/cert/%s"
@@ -163,10 +163,10 @@ async def on_confirmation(
 
         if index_of_chosen_interface == -1 or index_of_chosen_vpn_server == -1:
             await bot.send_message(
-                chat_id, f"🆘 Не удалость получить информацию о выбранном сервере: {vpn_server.name == manager.dialog_data['chosen_vpn_server']}. Обратитесь к администратору"
+                chat_id, f"Не удалось получить информацию о выбранном сервере: {vpn_server.name == manager.dialog_data['chosen_vpn_server']}. Обратитесь к администратору"
             )
         else:
-            with open("./static/templates/tun-client.ovpn.j2") as f:
+            with open(manager.dialog_data["kwargs"]["config"].path_to_ovpn_template) as f:
                 vars = {
                     "remote_host": manager.dialog_data["kwargs"]["config"]
                     .vpn_servers[index_of_chosen_vpn_server]
@@ -183,10 +183,12 @@ async def on_confirmation(
                     .routes,
                     "key": result["data"]["private_key"],
                     "cert": result["data"]["certificate"],
+                    "dns_server_address": manager.dialog_data["kwargs"]["config"].dns.address,
+                    "dns_server_domain": manager.dialog_data["kwargs"]["config"].dns.domain
                 }
                 rendered_template = Template(f.read()).render(vars)
 
-                output_file_name = f"./temp/{cn}.ovpn"
+                output_file_name = f"./temp/{manager.dialog_data['chosen_interface']}_{cn}_{datetime.now().strftime('%Y-%m-%d')}.ovpn"
                 manager.dialog_data["output_file_name"] = output_file_name
                 with open(output_file_name, "w") as file:
                     file.write(rendered_template)
@@ -206,6 +208,7 @@ async def on_confirmation(
                 manager.dialog_data["kwargs"]["config"].logs_chat_id,
                 f"Пользователь {manager.event.from_user.first_name} (ID: {manager.event.from_user.id}) сгенерировал сертификат с CN `{cn}` для доступа к серверу `{manager.dialog_data['chosen_vpn_server']}` сроком на {manager.dialog_data['kwargs']['config'].vault.ttl}",
             )
+            
 
 
 async def on_finish(

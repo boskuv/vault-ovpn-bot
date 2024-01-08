@@ -1,0 +1,102 @@
+client
+
+dev {{ chosen_interface }}
+
+;proto tcp
+proto udp
+
+remote {{ remote_host }} {{ remote_port }}
+
+resolv-retry infinite
+
+nobind
+
+;user nobody
+;group nobody
+
+persist-key
+persist-tun
+
+<ca>
+-----BEGIN CERTIFICATE-----
+MIIDojCCAoqgAwIBAgIUA9xehy0aIGh5GfeiInBlEo0gGkUwDQYJKoZIhvcNAQEL
+BQAwJTEjMCEGA1UEAxMaUm9vdCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMjMw
+MzE1MTgxNjQ5WhcNMzMwMzEyMTgxNzE5WjAaMRgwFgYDVQQDEw9JbnRlcm1lZGlh
+dGUgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDAYTKP0sgK/Ykn
+hVs75QarNbxYEm1Px+ZL/OPlhi71mkP8TsT56AnTkFgoLTW3/2phinJKHs4VChnn
+MdT74K8X+KMDrWl/juVdnlmMHP55psRkCkDhuVqwhwuMDBFAviRAc04BHGpLTbvl
+jd6hQ3XtqALAYfTs87mPvEG8bzsCijVLceIrGZFPI6cvPt4ZFUKSuAHfEFyOub4+
+2sorDb/x6BJHmHus7ioiTC4DLsQP62kOY37Q8oi50PYI/m/0bUu8tljXDkyN8aOk
+GFGY+8RMC5EU2p+EFm5rBRSOHIOtPjQOgXLi0So1vllKlzUFMcvJ2zs7JPK1b3YL
+AAvW5255AgMBAAGjgdQwgdEwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQFMAMB
+Af8wHQYDVR0OBBYEFMLYQhROBE678t7kHYYHUu9PZ6MfMB8GA1UdIwQYMBaAFLXx
+LwaxuY/3GtBpsS+bla3KaBvFMDsGCCsGAQUFBwEBBC8wLTArBggrBgEFBQcwAoYf
+aHR0cDovLzEyNy4wLjAuMTo4Njc1L3YxL3BraS9jYTAxBgNVHR8EKjAoMCagJKAi
+hiBodHRwOi8vMTI3LjAuMC4xOjg2NzUvdjEvcGtpL2NybDANBgkqhkiG9w0BAQsF
+AAOCAQEASMlZQu6NpERqraBCVAgQwUBQ5nF+WMSSrK9+jTWJ8hItKWXlrxnseKkD
+MA6YZmHAcW4F6fHwXL5CsskVqFILnxI3TnZMhZh3endlzy3ivCv4SvBWj5gWbWs2
+IUAZ1AP/DhiC8EjbY18O+vWbhtdqCHCgvE2VGGQ6S+UWwfQamLnfju6xOtxx71Xd
+kU3uSUb7/9tiPvWzxHjIwfkSOVHa9yZIgUV7o3wqBjoyqY360YOXNvR3UihrKvIE
+5PQQbrWHiNtY0hOGhJEwqFqcPnDUoykZbxm7tFkFwmOqOG2MUmZIUttdqUOPE+3q
+54ddL23N2DoVfEKZOcCMflsU1QRelw==
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+MIIDOzCCAiOgAwIBAgIUDqWoja3jnEyt1tHm7TlmE/lFqKgwDQYJKoZIhvcNAQEL
+BQAwJTEjMCEGA1UEAxMaUm9vdCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMjMw
+MzE1MTgwNTAzWhcNMzQwMzEyMTgwNTMzWjAlMSMwIQYDVQQDExpSb290IENlcnRp
+ZmljYXRlIEF1dGhvcml0eTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+ANqpvA5h65GQmywEeYxr7wZcVbEAHqQvti231A/xy30m82Wh8K8ekAOYK14eaxIo
+Z5/9AE5hBaA1YSqwF/wsfQCvKGeMFKKIRZc//p32FnZJ8izqFiU+zAI5SP6NqMW9
+UYrUJYGw9s+TjYWM769bPbsYhIHoed1mJE87tWoRaGYSeGaff43cL+nFDlwCpUmP
+3PvFVEMLeqLNQJCnIkNknEmlyBr+augpWIDfnrnOJL5jUrVpZbSblCpit+m3W9Dv
+HqUjKX2DPeMb/2FF/OnQ0d/XJ9NsMaixqL5gzI9jNOJmH4WmBdjVFnvFXB6lkCjm
+3kisXigRNvZVwg/44aBXUxECAwEAAaNjMGEwDgYDVR0PAQH/BAQDAgEGMA8GA1Ud
+EwEB/wQFMAMBAf8wHQYDVR0OBBYEFLXxLwaxuY/3GtBpsS+bla3KaBvFMB8GA1Ud
+IwQYMBaAFLXxLwaxuY/3GtBpsS+bla3KaBvFMA0GCSqGSIb3DQEBCwUAA4IBAQDL
+kyrcrsXZ2J0+SuBO7jxmZBbViFp2ovh5+fVGuo+rmpLpfcfsI+XfvOP1FZwevdBW
+CGjqjXyAh/hN2kI1HJo1zMZBtmGX+loMaoAAD0NEGOSihbMAolsxcXb0u5SwHqMy
+P0aIFTFRkoVnZ1y6Bztgw9zPcjTX9OigMFM+pwcomzldEB/uVA/sZoCP5xEpUXUn
+qf5/u8nvs/dMMub73RQl2nkVlcmza8YE0snXOze+N7KqIeRHpYIwUgVa3f52Z580
+sAhVxy2RsL2qrm+e7QkLA9CmSI51ARucWS1Dg3ldWkCgOSN5cGwyZE47Z11ZHD96
+wDZJhFsLjDlO7Y9N9FuT
+-----END CERTIFICATE-----
+</ca>
+<cert>
+{{ cert }}
+</cert>
+<key>
+{{ key }}
+</key>
+
+{% if tunnel_option %}
+redirect-gateway def1
+{% endif %}
+
+{% for route in routes -%}
+route add {{ route }}
+{% endfor %}
+
+{% if push_dns_server_option %}
+script-security 2
+{% if dns_server_address != "" %}
+dhcp-option DNS {{ dns_server_address }}
+{% endif %}
+{% if dns_server_domain != "" %}
+dhcp-option DOMAIN {{ dns_server_domain }}
+{% endif %}
+{% endif %}
+
+
+cipher AES-256-CBC
+tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384
+tls-version-min 1.2
+
+remote-cert-tls server
+
+comp-lzo
+
+# Set log file verbosity.
+verb 3
+
+# Silence repeating messages
+;mute 20
