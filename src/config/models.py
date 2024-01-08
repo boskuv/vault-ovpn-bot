@@ -17,6 +17,7 @@ class Interface(BaseSettings):
     """
     Interface config
     """
+
     interface_type: Literal["tun", "tap"] = "tun"
     port: int
 
@@ -42,12 +43,15 @@ class VaultConfig(BaseSettings):
     role: str
     ttl: str
 
+
 class DnsConfig(BaseSettings):
     """
     DNS config
     """
+
     address: str = ""
     domain: str = ""
+
 
 class Config(BaseSettings):
     """

@@ -79,7 +79,9 @@ async def on_confirmation(
     bot = callback.bot
     message_id = callback.message.message_id
 
-    if not os.path.exists(manager.dialog_data["kwargs"]["config"].path_to_ovpn_template):
+    if not os.path.exists(
+        manager.dialog_data["kwargs"]["config"].path_to_ovpn_template
+    ):
         with suppress(TelegramBadRequest):
             is_able_to_generate_cert = False
             await bot.send_message(
@@ -88,8 +90,8 @@ async def on_confirmation(
 
     client = hvac.Client(manager.dialog_data["kwargs"]["config"].vault.address)
 
-    if os.path.exists("%s/.vault-token"% os.path.expanduser("~")):
-        with open("%s/.vault-token"% os.path.expanduser("~"), "r") as f:
+    if os.path.exists("%s/.vault-token" % os.path.expanduser("~")):
+        with open("%s/.vault-token" % os.path.expanduser("~"), "r") as f:
             client.token = f.readline().replace("\n", "")
     else:
         with suppress(TelegramBadRequest):
@@ -101,7 +103,8 @@ async def on_confirmation(
     except:
         is_able_to_generate_cert = False
         await bot.send_message(
-            chat_id, "Не удалось получить доступ к инстансу vault. Обратитесь к администраторам" # TODO: logging
+            chat_id,
+            "Не удалось получить доступ к инстансу vault. Обратитесь к администраторам",  # TODO: logging
         )
 
     if client.seal_status["sealed"]:
@@ -163,10 +166,13 @@ async def on_confirmation(
 
         if index_of_chosen_interface == -1 or index_of_chosen_vpn_server == -1:
             await bot.send_message(
-                chat_id, f"Не удалось получить информацию о выбранном сервере: {vpn_server.name == manager.dialog_data['chosen_vpn_server']}. Обратитесь к администратору"
+                chat_id,
+                f"Не удалось получить информацию о выбранном сервере: {vpn_server.name == manager.dialog_data['chosen_vpn_server']}. Обратитесь к администратору",
             )
         else:
-            with open(manager.dialog_data["kwargs"]["config"].path_to_ovpn_template) as f:
+            with open(
+                manager.dialog_data["kwargs"]["config"].path_to_ovpn_template
+            ) as f:
                 vars = {
                     "remote_host": manager.dialog_data["kwargs"]["config"]
                     .vpn_servers[index_of_chosen_vpn_server]
@@ -176,15 +182,21 @@ async def on_confirmation(
                     .interfaces[index_of_chosen_interface]
                     .port,
                     "tunnel_option": manager.dialog_data["tunnel_option"],
-                    "push_dns_server_option": manager.dialog_data["push_dns_server_option"],
+                    "push_dns_server_option": manager.dialog_data[
+                        "push_dns_server_option"
+                    ],
                     "chosen_interface": manager.dialog_data["chosen_interface"],
                     "routes": manager.dialog_data["kwargs"]["config"]
                     .vpn_servers[index_of_chosen_vpn_server]
                     .routes,
                     "key": result["data"]["private_key"],
                     "cert": result["data"]["certificate"],
-                    "dns_server_address": manager.dialog_data["kwargs"]["config"].dns.address,
-                    "dns_server_domain": manager.dialog_data["kwargs"]["config"].dns.domain
+                    "dns_server_address": manager.dialog_data["kwargs"][
+                        "config"
+                    ].dns.address,
+                    "dns_server_domain": manager.dialog_data["kwargs"][
+                        "config"
+                    ].dns.domain,
                 }
                 rendered_template = Template(f.read()).render(vars)
 
@@ -208,7 +220,6 @@ async def on_confirmation(
                 manager.dialog_data["kwargs"]["config"].logs_chat_id,
                 f"Пользователь {manager.event.from_user.first_name} (ID: {manager.event.from_user.id}) сгенерировал сертификат с CN `{cn}` для доступа к серверу `{manager.dialog_data['chosen_vpn_server']}` сроком на {manager.dialog_data['kwargs']['config'].vault.ttl}",
             )
-            
 
 
 async def on_finish(
