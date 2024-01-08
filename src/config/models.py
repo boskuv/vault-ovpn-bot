@@ -33,11 +33,21 @@ class VpnConfig(BaseSettings):
 
 
 class VaultConfig(BaseSettings):
+    """
+    VAULT config
+    """
+
     address: str
     pki_mountpoint: str
     role: str
     ttl: str
 
+class DnsConfig(BaseSettings):
+    """
+    DNS config
+    """
+    address: str = ""
+    domain: str = ""
 
 class Config(BaseSettings):
     """
@@ -46,8 +56,10 @@ class Config(BaseSettings):
 
     bot: BotConfig
     vault: VaultConfig
+    dns: DnsConfig
     team_chat_id: int
     logs_chat_id: int
+    path_to_ovpn_template: str
     vpn_servers: List[VpnConfig] = dict()
 
 
