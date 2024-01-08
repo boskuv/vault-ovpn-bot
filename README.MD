@@ -1,3 +1,10 @@
+## Quick Start
+- cp config.yaml.example config.yaml
+- build a docker image, using `docker build -t <image_name> .` 
+- edit 'config.yaml', according to your target
+- add files to '/input'
+- run a docker container, using compose `docker-compose up` 
+
 # Description
 
 0. Установить зависимости + заполнить config.yaml + добавить токен в `$HOME/.vault-token` with enough privileges to access CAs + добавить CA chain в шаблон
