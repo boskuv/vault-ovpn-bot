@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  vault-ovpn-bot:
+    image: vault-ovpn-bot
+    container_name: vault-ovpn-bot
+    restart: always
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - ./static/templates/:/app/static/templates/
+      - ~/.vault-token:/home/ch/.vault-token
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: bash -c "python -m src"
