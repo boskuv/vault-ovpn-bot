@@ -115,8 +115,8 @@ def summarize_window() -> Window:
             "Вы хотите сгенерировать ovpn-файл сроком на {period} со следующими параметрами:"
         ),
         Format("📃 Точка подключения: {chosen_vpn_server}"),
-        Format("📃 Туннелирование трафика: {push_dns_server_option}"),
-        Format("📃 Подмена dns: {tunnel_option}"),
+        Format("📃 Туннелирование трафика: {tunnel_option}"),
+        Format("📃 Подмена dns: {push_dns_server_option}"),
         Format("📃 Интерфейс клиента: {chosen_interface}"),
         Group(
             Cancel(
