@@ -91,54 +91,34 @@ async def on_confirmation(
     client = hvac.Client(manager.dialog_data["kwargs"]["config"].vault.address)
 
     if os.path.exists("%s/.vault-token" % os.path.expanduser("~")):
-        with open("%s/.vault-token" % os.path.expanduser("~"), "r") as f:
-            client.token = f.readline().replace("\n", "")
+        try:
+            with open("%s/.vault-token" % os.path.expanduser("~"), "r") as f:
+                client.token = f.readline().replace("\n", "")
+        except Exception:
+            with suppress(TelegramBadRequest):
+                is_able_to_generate_cert = False
+                await bot.send_message(chat_id, "Невозможно получить vault-токен. Обратитесь к администраторам")        
     else:
         with suppress(TelegramBadRequest):
             is_able_to_generate_cert = False
-            await bot.send_message(chat_id, "Токен отсутствует во входном каталоге")
+            await bot.send_message(chat_id, "Невозможно получить vault-токен. Обратитесь к администраторам")
 
     try:
         assert client.is_authenticated()
+        if client.seal_status["sealed"]:
+            is_able_to_generate_cert = False
+            await bot.send_message(chat_id, "Инстанс vault запечатан")
     except:
         is_able_to_generate_cert = False
         await bot.send_message(
             chat_id,
-            "Не удалось получить доступ к инстансу vault. Обратитесь к администраторам",  # TODO: logging
+            "Не удалось получить доступ к инстансу vault. Обратитесь к администраторам",
         )
 
-    if client.seal_status["sealed"]:
-        is_able_to_generate_cert = False
-        await bot.send_message(chat_id, "Инстанс vault запечатан")  # TODO: logging
-
     if is_able_to_generate_cert:
-        # TODO: if manager.event.from_user.first_name is null
         cn = f"{manager.dialog_data['chosen_vpn_server']}-{manager.event.from_user.first_name}-{manager.event.from_user.id}"
 
-        # Get list of certificates to check if common name already exists and .. TODO
-        # for cert_serial in client.list(
-        #     "%s/certs"% manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint
-        # )["data"]["keys"]:
-        #     record = client.read(
-        #         "%s/cert/%s"
-        #         % (
-        #             manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint,
-        #             cert_serial,
-        #         )
-        #     )
-        #     cert = x509.load_pem_x509_certificate(
-        #         record["data"]["certificate"].encode(), default_backend()
-        #     )
-        #     cn_ = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
-        #     current_datetime = datetime.now()
-        #     expiration_datetime = cert.not_valid_after
-        #     if cn == cn_ and current_datetime < expiration_datetime:
-        #         pass
-        #         # if it is possible to renew
-        #         break
-
         # TODO: try
-
         result = client.write(
             f'{manager.dialog_data["kwargs"]["config"].vault.pki_mountpoint}/issue/{manager.dialog_data["kwargs"]["config"].vault.role}',
             common_name=cn,
@@ -214,11 +194,11 @@ async def on_confirmation(
                 ),
                 allow_sending_without_reply=False,
                 reply_to_message_id=message_id,
-            )  # TODO: delete output_file_name
+            )  # TODO: [os.remove(output_file_name)]
 
             await bot.send_message(
                 manager.dialog_data["kwargs"]["config"].logs_chat_id,
-                f"Пользователь {manager.event.from_user.first_name} (ID: {manager.event.from_user.id}) сгенерировал сертификат с CN `{cn}` для доступа к серверу `{manager.dialog_data['chosen_vpn_server']}` сроком на {manager.dialog_data['kwargs']['config'].vault.ttl}",
+                f"Пользователь {manager.event.from_user.first_name} (ID: {manager.event.from_user.id}) сгенерировал сертификат с CN `{cn}` для доступа к серверу `{manager.dialog_data['chosen_vpn_server']}` сроком на {manager.dialog_data['kwargs']['config'].vault.ttl} [Идентификатор в vault: `{result['data']['serial_number']}`]",
             )
 
 
